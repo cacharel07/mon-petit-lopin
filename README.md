@@ -120,7 +120,31 @@ elle a changé, l'installe et redémarre le site. Il ne fait rien s'il n'y a pas
    `*/15 * * * *` (toutes les 15 minutes).
 
 Sans les variables d'API, la mise à jour se fait quand même, mais il faut redémarrer le site à la
-main. `git fetch` doit fonctionner sans mot de passe (identifiants enregistrés lors du clone).
+main.
+
+**Accès au dépôt privé sans mot de passe (clé de déploiement)** : la tâche planifiée tourne sans
+personne pour taper un mot de passe ou un code 2FA. Le serveur utilise donc une clé SSH en lecture
+seule, propre à ce dépôt (même principe que pour RR43 Tournament). Une seule fois, en SSH sur le
+serveur :
+
+```bash
+ssh-keygen -t ed25519 -N "" -C "alwaysdata-mon-petit-lopin" -f ~/.ssh/github_deploy
+printf 'Host github.com\n  IdentityFile ~/.ssh/github_deploy\n  IdentitiesOnly yes\n' >> ~/.ssh/config
+ssh-keyscan github.com >> ~/.ssh/known_hosts
+cat ~/.ssh/github_deploy.pub
+```
+
+Sur GitHub, dans le dépôt : _Settings_ → _Deploy keys_ → _Add deploy key_, coller la clé publique,
+**sans** cocher « Allow write access ». Puis, sur le serveur :
+
+```bash
+cd ~/www/mon-petit-lopin
+git remote set-url origin git@github.com:cacharel07/mon-petit-lopin.git
+git fetch --depth 1 origin deploy   # ne doit rien demander
+```
+
+GitHub n'accepte pas la même clé de déploiement sur deux dépôts : il faut bien une nouvelle clé,
+pas celle de RR43 Tournament.
 
 ### VPS (alternative)
 
