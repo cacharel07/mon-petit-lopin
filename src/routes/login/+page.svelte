@@ -1,4 +1,5 @@
 <script lang="ts">
+	import logo from '#lib/assets/logo.webp';
 	import type { PageProps } from './$types';
 
 	let { form }: PageProps = $props();
@@ -7,7 +8,7 @@
 <svelte:head><title>Connexion · Mon petit lopin</title></svelte:head>
 
 <div class="login">
-	<h1>🌳 Mon petit lopin</h1>
+	<img class="logo" src={logo} alt="Mon petit lopin" width="480" height="480" />
 	<form method="POST" class="card stack">
 		{#if form?.error}<p class="error">{form.error}</p>{/if}
 		<label>
@@ -25,10 +26,15 @@
 <style>
 	.login {
 		max-width: 22rem;
-		margin: 15vh auto 0;
+		margin: 8vh auto 0;
 		padding: 0 1rem;
 	}
-	h1 {
-		text-align: center;
+	.logo {
+		display: block;
+		width: 12rem;
+		height: 12rem;
+		margin: 0 auto 1.25rem;
+		border-radius: 50%;
+		background: #fff;
 	}
 </style>
