@@ -43,7 +43,9 @@ src/routes/                pages (URLs en français) :
                            / (tableau de bord), /echeances/fait (POST du bouton « Fait »),
                            /export, /export/lopin.zip, /export/lopin.json, /export/csv/[table],
                            /zones, /plus, /photos/[name] (fichiers, authentifiés)
-scripts/                   hash-password.js, seed.ts
+scripts/                   hash-password.js, seed.ts, update.sh (mise à jour sur le serveur)
+.github/workflows/         release.yml : build GitHub → branche deploy
+deploy/gitignore           .gitignore de la branche deploy
 drizzle/                   migrations SQL générées
 data/                      base et photos (ignoré par git)
 ```
@@ -112,7 +114,12 @@ s'accompagner de tests.
 - Export : CSV avec séparateur `;` et BOM UTF-8 (tableur en français) ; noms de colonnes de la
   base ; sessions exclues.
 - Authentification : un seul compte défini par variables d'environnement.
-- Hébergement visé : alwaysdata (Node.js), sans Docker.
+- Hébergement : alwaysdata (Node.js 24), sans Docker. Le SSH n'a pas assez de mémoire pour
+  `npm ci` / `vite build` : GitHub Actions (`.github/workflows/release.yml`) publie à chaque push
+  sur `main` une copie compilée avec les dépendances de production sur la branche `deploy`
+  (un seul commit, force-pushé). Le serveur suit `deploy` et se met à jour avec
+  `sh scripts/update.sh`. Tout ce qui est exécuté en production (y compris `scripts/seed.ts`)
+  doit donc n'utiliser que des `dependencies`, pas des `devDependencies`.
 
 ## Hors périmètre V1 (pistes V2)
 

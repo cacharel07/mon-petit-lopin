@@ -69,22 +69,45 @@ Tout ce qu'il faut sauvegarder se trouve dans ce dossier.
 
 ### alwaysdata
 
-1. Créer un site de type **Node.js**.
-2. Cloner le dépôt dans le compte (SSH), puis :
-   ```bash
-   npm ci && npm run build
-   npm run db:seed   # première installation uniquement
-   ```
-3. Créer le fichier `.env` (voir plus haut), avec en plus :
-   ```
-   ORIGIN=https://mon-domaine.example
-   BODY_SIZE_LIMIT=50M
-   ```
-   `ORIGIN` est nécessaire derrière le proxy HTTPS de l'hébergeur (protection CSRF des formulaires
-   et cookies `secure`).
-4. Commande de lancement du site : `npm start` (ou `node --env-file-if-exists=.env build`).
-   alwaysdata fournit le port via `PORT`, lu automatiquement par adapter-node.
-5. Mise à jour : `git pull && npm ci && npm run build`, puis redémarrer le site.
+La session SSH d'alwaysdata n'a pas assez de mémoire pour `npm ci` ni `vite build`. L'app est
+donc **compilée par GitHub** : à chaque push sur `main`, le workflow
+`.github/workflows/release.yml` installe, teste, compile et publie une copie prête à lancer
+(build, migrations, scripts et dépendances de production) sur la branche **`deploy`**. Le serveur
+ne fait que récupérer cette branche.
+
+**Première installation** (dans le clone du dépôt sur le serveur) :
+
+```bash
+cd ~/www/mon-petit-lopin
+git fetch --depth 1 origin deploy
+git checkout -f -B deploy FETCH_HEAD
+```
+
+Puis créer `.env` (voir plus haut) avec en plus :
+
+```
+ORIGIN=https://mon-petit-lopin.alwaysdata.net
+BODY_SIZE_LIMIT=50M
+```
+
+`ORIGIN` est nécessaire derrière le proxy HTTPS de l'hébergeur (protection CSRF des formulaires et
+cookies `secure`). Ensuite :
+
+```bash
+npm run db:seed   # première installation uniquement
+```
+
+Configuration du site (Web → Sites) : type **Node.js**, commande `npm start`, répertoire de
+travail `/home/<compte>/www/mon-petit-lopin`, Node.js 24. alwaysdata fournit `HOST` et `PORT`,
+lus automatiquement par adapter-node.
+
+**Mise à jour** : une fois le workflow GitHub terminé (onglet Actions), sur le serveur :
+
+```bash
+sh scripts/update.sh
+```
+
+puis redémarrer le site dans l'admin. `.env` et `data/` ne sont jamais touchés.
 
 ### VPS (alternative)
 

@@ -1,0 +1,3 @@
+# .gitignore of the deploy branch: node_modules and build ARE committed here.
+.env
+/data
