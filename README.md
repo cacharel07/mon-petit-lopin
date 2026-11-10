@@ -101,13 +101,26 @@ Configuration du site (Web → Sites) : type **Node.js**, commande `npm start`, 
 travail `/home/<compte>/www/mon-petit-lopin`, Node.js 24. alwaysdata fournit `HOST` et `PORT`,
 lus automatiquement par adapter-node.
 
-**Mise à jour** : une fois le workflow GitHub terminé (onglet Actions), sur le serveur :
+**Mise à jour automatique** : le script `scripts/auto-update.sh` récupère la branche `deploy` si
+elle a changé, l'installe et redémarre le site. Il ne fait rien s'il n'y a pas de nouvelle version.
 
-```bash
-sh scripts/update.sh
-```
+1. Dans l'admin alwaysdata, créer un token d'API (Profil → Gestion des tokens), puis ajouter au
+   `.env` :
+   ```
+   ALWAYSDATA_API_KEY=le-token
+   ALWAYSDATA_ACCOUNT=mon-petit-lopin
+   ALWAYSDATA_SITE_ID=123456
+   ```
+   L'identifiant du site est le nombre visible dans l'URL de la page du site dans l'admin
+   (Web → Sites → modifier).
+2. Tester une fois à la main : `sh scripts/update.sh` doit afficher « Mis à jour et site
+   redémarré ».
+3. Créer une tâche planifiée (Avancé → Tâches planifiées) : type « Commande », commande
+   `sh /home/mon-petit-lopin/www/mon-petit-lopin/scripts/auto-update.sh`, fréquence
+   `*/15 * * * *` (toutes les 15 minutes).
 
-puis redémarrer le site dans l'admin. `.env` et `data/` ne sont jamais touchés.
+Sans les variables d'API, la mise à jour se fait quand même, mais il faut redémarrer le site à la
+main. `git fetch` doit fonctionner sans mot de passe (identifiants enregistrés lors du clone).
 
 ### VPS (alternative)
 
