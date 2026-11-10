@@ -32,7 +32,6 @@
 		"@types/better-sqlite3": "^9.6.0",
 		"@types/node": "^22",
 		"drizzle-kit": "^0.31.10",
-		"drizzle-orm": "^0.45.2",
 		"prettier": "^3.8.3",
 		"prettier-plugin-svelte": "^4.1.0",
 		"svelte": "^5.57.2",
@@ -43,6 +42,7 @@
 	},
 	"dependencies": {
 		"better-sqlite3": "^13.0.2",
+		"drizzle-orm": "^0.45.2",
 		"exif-reader": "^2.0.3",
 		"fflate": "^0.8.2",
 		"sharp": "^0.35.5"
