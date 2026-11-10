@@ -93,9 +93,9 @@ BODY_SIZE_LIMIT=50M
 `ORIGIN` est nécessaire derrière le proxy HTTPS de l'hébergeur (protection CSRF des formulaires et
 cookies `secure`). Ensuite :
 
-```bash
-npm run db:seed   # première installation uniquement
-```
+Première installation : se connecter à l'app, puis **Plus → Importer les données initiales**
+(le bouton n'apparaît que si la base est vide). `npm run db:seed` fait la même chose en ligne de
+commande, mais la session SSH d'alwaysdata n'a pas assez de mémoire pour le lancer.
 
 Configuration du site (Web → Sites) : type **Node.js**, commande `npm start`, répertoire de
 travail `/home/<compte>/www/mon-petit-lopin`, Node.js 24. alwaysdata fournit `HOST` et `PORT`,

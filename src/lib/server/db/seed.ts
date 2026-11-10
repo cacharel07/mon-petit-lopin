@@ -10,10 +10,15 @@ const APPROX = 'Date approximative, à corriger.';
  * Insert the initial data (real trees and projects of the garden).
  * Refuses to run on a database that already contains data.
  */
+/** True when there is nothing the seed could conflict with (or overwrite). */
+export function isDatabaseEmpty(db: Db): boolean {
+	return [schema.zone, schema.tree, schema.speciesTemplate, schema.project].every(
+		(table) => db.select({ id: table.id }).from(table).limit(1).all().length === 0
+	);
+}
+
 export function seed(db: Db) {
-	const existing = db.select({ id: schema.zone.id }).from(schema.zone).limit(1).all();
-	const existingTrees = db.select({ id: schema.tree.id }).from(schema.tree).limit(1).all();
-	if (existing.length > 0 || existingTrees.length > 0) {
+	if (!isDatabaseEmpty(db)) {
 		throw new Error('La base contient déjà des données : seed annulé.');
 	}
 
