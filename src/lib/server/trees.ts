@@ -5,6 +5,8 @@ import {
 	careRule,
 	intervention,
 	photo,
+	project,
+	projectTree,
 	speciesTemplate,
 	tree,
 	treePollinator,
@@ -153,8 +155,16 @@ export function getTreeDetail(id: number) {
 		.orderBy(desc(photo.takenAt), desc(photo.id))
 		.all();
 
+	const projects = db
+		.select({ id: project.id, title: project.title, status: project.status })
+		.from(projectTree)
+		.innerJoin(project, eq(projectTree.projectId, project.id))
+		.where(eq(projectTree.treeId, id))
+		.all();
+
 	return {
 		tree: { ...t, name: displayName(t) },
+		projects,
 		zone: z ?? null,
 		template: template ?? null,
 		pollinators,

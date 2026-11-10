@@ -6,6 +6,7 @@
 	import {
 		INTERVENTION_TYPES,
 		INTERVENTION_TYPE_LABELS,
+		PROJECT_STATUS_LABELS,
 		TREE_STATUS_LABELS
 	} from '#lib/domain/enums.ts';
 	import type { PageProps } from './$types';
@@ -161,6 +162,18 @@
 		<p class="notes">{t.notes}</p>
 	{/if}
 </div>
+
+{#if data.projects.length}
+	<h2>Travaux liés</h2>
+	<ul class="list">
+		{#each data.projects as p (p.id)}
+			<li>
+				<a href="/travaux/{p.id}">{p.title}</a>
+				<span class="muted small">· {PROJECT_STATUS_LABELS[p.status]}</span>
+			</li>
+		{/each}
+	</ul>
+{/if}
 
 <h2>Photos ({data.photos.length})</h2>
 <PhotoGrid photos={data.photos} />
