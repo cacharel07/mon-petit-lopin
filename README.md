@@ -9,6 +9,9 @@ travaux, arbres, calendriers d'entretien et journal des interventions.
   traitements, récoltes, tâches de travaux), bouton « Fait », travaux en cours.
 - **Arbres** : fiche complète, photos de suivi, journal des interventions, calendrier
   d'entretien hérité d'un modèle d'espèce et personnalisable arbre par arbre.
+- **Catalogue intégré** d'une trentaine d'espèces (fruitiers, fruits à coque, petits fruits,
+  ornementaux, haies) adaptées à 850 m : à la création d'un arbre, on choisit l'espèce et la fiche
+  est préremplie (variétés et porte-greffes proposés, alerte si l'espèce est risquée en altitude).
 - **Modèles d'espèces** : règles d'entretien (période, fréquence, âge), marquées « à vérifier »
   tant qu'elles ne sont pas validées.
 - **Travaux** : liste filtrable, Kanban, checklist, photos avant / pendant / après, budget.

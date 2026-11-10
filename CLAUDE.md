@@ -28,7 +28,10 @@ src/env.ts                 variables d'environnement (defineEnvVars)
 src/hooks.server.ts        authentification (toutes les routes sauf /login)
 src/lib/domain/            logique métier PURE (pas d'I/O) — testée
 src/lib/components/        composants Svelte partagés (formulaires, photos, calendrier)
-src/lib/server/db/         schéma Drizzle, connexion, seed (seed-data.ts = valeurs d'entretien)
+src/lib/server/catalog.ts  catalogue intégré : ~30 fiches d'espèces pour 850 m (règles, variétés,
+                           porte-greffes, alertes altitude) ; catalog-templates.ts crée le modèle
+                           d'espèce depuis une fiche (species_template.catalog_key)
+src/lib/server/db/         schéma Drizzle, connexion, seed (seed-data.ts = zones + espèces du seed)
 src/lib/server/*.ts        services : trees.ts, projects.ts (requêtes), schedule.ts (charge les
                            données du moteur d'échéances), photos.ts (sharp), export.ts,
                            forms.ts (parsing)
@@ -104,7 +107,14 @@ s'accompagner de tests.
   personnalisations (les règles propres à l'arbre restent).
 - Âge d'un arbre = années pleines depuis `planting_date`. `min_age_years` inclus,
   `max_age_years` exclu (« avant 3 ans » = années 0, 1 et 2).
-- Les valeurs d'entretien du seed sont des suggestions pour 850 m d'altitude (`verified=false`).
+- Les valeurs d'entretien du catalogue (et donc du seed) sont des suggestions pour 850 m
+  d'altitude (`verified=false`). Pas d'API externe : aucune ne fournit de calendriers en français
+  adaptés à l'altitude ; le catalogue est dans le code, à enrichir directement.
+- Nouvel arbre : choix de l'espèce d'abord (catalogue ou modèle perso), puis formulaire prérempli.
+  Une fiche du catalogue devient un modèle d'espèce (avec ses règles) à sa première utilisation ;
+  le select du formulaire envoie alors `catalog:<clé>`.
+- Données initiales : bouton « Importer les données initiales » (page Plus, base vide), car le
+  SSH d'alwaysdata n'a pas assez de mémoire pour `npm run db:seed`.
 - Le seed contient des dates approximatives (plantation 2023 au 15 mars, achat au 1er novembre 2026) en attendant les vraies valeurs.
 - « Fait » n'est proposé que si une intervention datée d'aujourd'hui compte : période ouverte
   ou en retard, règle répétée, tâche de projet.
