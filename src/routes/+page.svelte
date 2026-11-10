@@ -1,6 +1,7 @@
 <script lang="ts">
 	import DueRow from '#lib/components/DueRow.svelte';
 	import ProjectCard from '#lib/components/ProjectCard.svelte';
+	import logo from '#lib/assets/logo.webp';
 	import { formatDate } from '#lib/domain/dates.ts';
 	import type { PageProps } from './$types';
 
@@ -11,8 +12,13 @@
 
 <svelte:head><title>Mon petit lopin</title></svelte:head>
 
-<h1>Tableau de bord</h1>
-<p class="muted today">{formatDate(data.today)}</p>
+<header class="brand">
+	<img class="logo" src={logo} alt="Mon petit lopin" width="480" height="480" />
+	<div>
+		<h1>Tableau de bord</h1>
+		<p class="muted today">{formatDate(data.today)}</p>
+	</div>
+</header>
 
 {#if data.toPlant || data.unverified}
 	<div class="hints">
@@ -76,8 +82,26 @@
 </section>
 
 <style>
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+	.brand h1 {
+		margin: 0;
+	}
 	.today {
-		margin-top: -0.75rem;
+		margin: 0.15rem 0 0;
+	}
+	/* The logo has a white background: show it as a white disc in both themes. */
+	.logo {
+		width: 7.5rem;
+		height: 7.5rem;
+		flex: none;
+		border-radius: 50%;
+		background: #fff;
+		box-shadow: 0 1px 4px rgb(0 0 0 / 0.08);
 	}
 	.hints {
 		display: flex;
