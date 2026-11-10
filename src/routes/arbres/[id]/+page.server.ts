@@ -15,6 +15,8 @@ import {
 	withForm
 } from '#lib/server/forms.ts';
 import { storePhoto } from '#lib/server/photos.ts';
+import { currentItemByRule } from '#lib/server/schedule.ts';
+import { dueText } from '#lib/domain/due-text.ts';
 import { deletePhoto, getTree, getTreeDetail } from '#lib/server/trees.ts';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -29,8 +31,16 @@ export const load: PageServerLoad = ({ params }) => {
 	if (!detail) error(404, 'Arbre introuvable');
 	const today = todayIso();
 	const t = detail.tree;
+	const statuses: Record<
+		number,
+		{ status: 'overdue' | 'due' | 'upcoming' | 'done'; text: string }
+	> = {};
+	for (const [ruleId, item] of currentItemByRule(t.id, today)) {
+		statuses[ruleId] = { status: item.status, text: dueText(item, today) };
+	}
 	return {
 		...detail,
+		statuses,
 		today,
 		ageYears:
 			t.status === 'planted' && t.plantingDate ? fullYearsBetween(t.plantingDate, today) : null

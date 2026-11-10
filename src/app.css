@@ -279,3 +279,18 @@ dl.facts dd {
 	font-size: 0.75rem;
 	color: var(--muted);
 }
+
+.status-overdue {
+	color: var(--danger);
+	font-weight: 600;
+}
+
+.status-due {
+	color: var(--primary);
+	font-weight: 600;
+}
+
+.status-upcoming,
+.status-done {
+	color: var(--muted);
+}

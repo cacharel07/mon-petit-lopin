@@ -117,7 +117,7 @@
 {#if t.status !== 'planted'}
 	<p class="muted small">Les échéances commenceront une fois l'arbre planté.</p>
 {/if}
-<CareCalendar rules={activeRules} {sourceLabels} />
+<CareCalendar rules={activeRules} {sourceLabels} statuses={data.statuses} treeId={t.id} />
 
 <h2>Fiche</h2>
 <div class="card">
