@@ -15,7 +15,9 @@ export const TREE_STATUS_LABELS: Record<TreeStatus, string> = {
 export const SPECIES_CATEGORIES = [
 	'fruit_tree',
 	'nut_tree',
+	'small_fruit',
 	'ornamental',
+	'hedge',
 	'shrub',
 	'other'
 ] as const;
@@ -23,7 +25,9 @@ export type SpeciesCategory = (typeof SPECIES_CATEGORIES)[number];
 export const SPECIES_CATEGORY_LABELS: Record<SpeciesCategory, string> = {
 	fruit_tree: 'Fruitier',
 	nut_tree: 'Fruit à coque',
+	small_fruit: 'Petit fruit',
 	ornamental: 'Ornemental',
+	hedge: 'Haie',
 	shrub: 'Arbuste',
 	other: 'Autre'
 };

@@ -32,11 +32,13 @@ main() {
 
 	log "Installation de : $(git log -1 --format=%s FETCH_HEAD)"
 	git checkout -q -f -B deploy FETCH_HEAD
-	git clean -q -fd -e .env -e data -e "$lock"
+	# NFS keeps '.nfs*' files for scripts replaced while running (this one included):
+	# skip them, and never let the cleanup stop the update before the restart.
+	git clean -q -fd -e .env -e data -e "$lock" -e '.nfs*' || log "Nettoyage incomplet (sans gravité)."
 
 	# Drop the previous build's objects (low-memory settings for the host).
-	git reflog expire --expire=now --all
-	git -c pack.threads=1 -c pack.windowMemory=32m gc -q --prune=now
+	git reflog expire --expire=now --all || true
+	git -c pack.threads=1 -c pack.windowMemory=32m gc -q --prune=now || true
 
 	restart_site
 }

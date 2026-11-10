@@ -66,6 +66,8 @@ export const zone = sqliteTable('zone', {
 export const speciesTemplate = sqliteTable('species_template', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	commonName: text('common_name').notNull().unique(),
+	/** Key of the built-in catalogue entry this template was created from. */
+	catalogKey: text('catalog_key').unique(),
 	latinName: text('latin_name'),
 	category: text('category', { enum: SPECIES_CATEGORIES }).notNull().default('fruit_tree'),
 	defaultSpacingM: real('default_spacing_m'),

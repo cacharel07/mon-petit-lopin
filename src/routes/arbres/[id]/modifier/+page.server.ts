@@ -2,6 +2,7 @@ import { error, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.ts';
 import { tree } from '#lib/server/db/schema.ts';
+import { catalogForForms } from '#lib/server/catalog-view.ts';
 import { withForm } from '#lib/server/forms.ts';
 import { parseTreeForm } from '#lib/server/tree-form.ts';
 import {
@@ -29,6 +30,7 @@ export const load: PageServerLoad = ({ params }) => {
 		pollinatorIds: getPollinatorIds(t.id),
 		zones: listZones(),
 		templates: listTemplates(),
+		catalog: catalogForForms(),
 		otherTrees: listTrees()
 			.filter((o) => o.id !== t.id)
 			.map((o) => ({ id: o.id, name: o.name }))

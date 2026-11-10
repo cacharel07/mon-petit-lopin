@@ -1,6 +1,8 @@
 import type { BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import * as schema from './schema.ts';
-import { SPECIES_TEMPLATES, ZONES } from './seed-data.ts';
+import { catalogEntry } from '../catalog.ts';
+import { ensureTemplateFromCatalog } from '../catalog-templates.ts';
+import { SEED_SPECIES, ZONES } from './seed-data.ts';
 
 type Db = BetterSQLite3Database<typeof schema>;
 
@@ -10,10 +12,15 @@ const APPROX = 'Date approximative, à corriger.';
  * Insert the initial data (real trees and projects of the garden).
  * Refuses to run on a database that already contains data.
  */
+/** True when there is nothing the seed could conflict with (or overwrite). */
+export function isDatabaseEmpty(db: Db): boolean {
+	return [schema.zone, schema.tree, schema.speciesTemplate, schema.project].every(
+		(table) => db.select({ id: table.id }).from(table).limit(1).all().length === 0
+	);
+}
+
 export function seed(db: Db) {
-	const existing = db.select({ id: schema.zone.id }).from(schema.zone).limit(1).all();
-	const existingTrees = db.select({ id: schema.tree.id }).from(schema.tree).limit(1).all();
-	if (existing.length > 0 || existingTrees.length > 0) {
+	if (!isDatabaseEmpty(db)) {
 		throw new Error('La base contient déjà des données : seed annulé.');
 	}
 
@@ -29,44 +36,14 @@ export function seed(db: Db) {
 			zoneIds.set(name, row.id);
 		});
 
-		// Species templates and their care rules
+		// Species templates (from the catalogue) and their care rules
 		const templateIds = new Map<string, number>();
-		for (const t of SPECIES_TEMPLATES) {
-			const row = tx
-				.insert(schema.speciesTemplate)
-				.values({
-					commonName: t.commonName,
-					latinName: t.latinName,
-					category: t.category,
-					defaultSpacingM: t.defaultSpacingM,
-					needsPollinator: t.needsPollinator,
-					notes: t.notes
-				})
-				.returning({ id: schema.speciesTemplate.id })
-				.get();
-			templateIds.set(t.commonName, row.id);
-			for (const r of t.rules) {
-				tx.insert(schema.careRule)
-					.values({
-						speciesTemplateId: row.id,
-						type: r.type,
-						label: r.label,
-						startMonth: r.start[0],
-						startDay: r.start[1],
-						endMonth: r.end[0],
-						endDay: r.end[1],
-						intervalDays: r.intervalDays ?? null,
-						minAgeYears: r.minAgeYears ?? null,
-						maxAgeYears: r.maxAgeYears ?? null,
-						verified: false,
-						notes: r.notes ?? null
-					})
-					.run();
-			}
+		for (const key of SEED_SPECIES) {
+			templateIds.set(catalogEntry(key)!.commonName, ensureTemplateFromCatalog(tx, key));
 		}
 
 		const template = (name: string) => {
-			const t = SPECIES_TEMPLATES.find((s) => s.commonName === name)!;
+			const t = SEED_SPECIES.map((k) => catalogEntry(k)!).find((e) => e.commonName === name)!;
 			return {
 				speciesTemplateId: templateIds.get(name)!,
 				commonName: name,

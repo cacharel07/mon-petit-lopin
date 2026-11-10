@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { TREE_STATUSES, TREE_STATUS_LABELS } from '#lib/domain/enums.ts';
+	import type { CatalogOption } from '#lib/server/catalog-view.ts';
 
 	type Values = Record<string, string | number | boolean | null | undefined>;
 
@@ -12,44 +13,101 @@
 			latinName: string | null;
 			needsPollinator: boolean;
 			defaultSpacingM: number | null;
+			catalogKey: string | null;
 		}[];
+		/** Built-in catalogue; entries without template are offered as `catalog:<key>`. */
+		catalog: CatalogOption[];
 		otherTrees: { id: number; name: string }[];
 		pollinatorIds?: number[];
 	}
 
-	let { values = {}, zones, templates, otherTrees, pollinatorIds = [] }: Props = $props();
+	let { values = {}, zones, templates, catalog, otherTrees, pollinatorIds = [] }: Props = $props();
 
 	const v = (name: string) => (values[name] == null ? '' : String(values[name]));
 
-	// Prefill names from the chosen species template when they are still empty.
+	// Form state initialised once from the values (edit, error or catalogue prefill).
+	// svelte-ignore state_referenced_locally
+	let templateRef = $state(v('speciesTemplateId'));
 	// svelte-ignore state_referenced_locally
 	let commonName = $state(v('commonName'));
 	// svelte-ignore state_referenced_locally
 	let species = $state(v('species'));
 	// svelte-ignore state_referenced_locally
+	let variety = $state(v('variety'));
+	// svelte-ignore state_referenced_locally
+	let spacing = $state(v('recommendedSpacingM'));
+	// svelte-ignore state_referenced_locally
+	let pollinationNotes = $state(v('pollinationNotes'));
+	// svelte-ignore state_referenced_locally
 	let pollinatorRequired = $state(
 		values.pollinatorRequired === true || values.pollinatorRequired === 'on'
 	);
 
-	function onTemplateChange(e: Event) {
-		const id = Number((e.currentTarget as HTMLSelectElement).value);
-		const t = templates.find((t) => t.id === id);
-		if (!t) return;
-		if (!commonName) commonName = t.commonName;
-		if (!species && t.latinName) species = t.latinName;
-		if (t.needsPollinator) pollinatorRequired = true;
+	const linkedKeys = $derived(new Set(templates.map((t) => t.catalogKey).filter(Boolean)));
+	const pendingCatalog = $derived(catalog.filter((e) => !linkedKeys.has(e.key)));
+
+	/** Catalogue entry behind the selected template, if any. */
+	const entry = $derived.by(() => {
+		const key = templateRef.startsWith('catalog:')
+			? templateRef.slice('catalog:'.length)
+			: templates.find((t) => String(t.id) === templateRef)?.catalogKey;
+		return catalog.find((e) => e.key === key) ?? null;
+	});
+	const varietyNote = $derived(entry?.varieties.find((x) => x.name === variety)?.notes ?? null);
+
+	function onTemplateChange() {
+		const t = templates.find((t) => String(t.id) === templateRef);
+		const source = t
+			? {
+					name: t.commonName,
+					latin: t.latinName,
+					pollinator: t.needsPollinator,
+					spacing: t.defaultSpacingM
+				}
+			: entry
+				? {
+						name: entry.commonName,
+						latin: entry.latinName,
+						pollinator: entry.needsPollinator,
+						spacing: entry.defaultSpacingM
+					}
+				: null;
+		if (!source) return;
+		if (!commonName) commonName = source.name;
+		if (!species && source.latin) species = source.latin;
+		if (!spacing && source.spacing) spacing = String(source.spacing);
+		if (source.pollinator) pollinatorRequired = true;
+	}
+
+	function onVarietyChange() {
+		if (varietyNote && !pollinationNotes) pollinationNotes = varietyNote;
 	}
 </script>
 
 <label>
-	Modèle d'espèce
-	<select name="speciesTemplateId" value={v('speciesTemplateId')} onchange={onTemplateChange}>
-		<option value="">— Aucun —</option>
-		{#each templates as t (t.id)}
-			<option value={String(t.id)}>{t.commonName}</option>
-		{/each}
+	Espèce
+	<select name="speciesTemplateId" bind:value={templateRef} onchange={onTemplateChange}>
+		<option value="">— Aucun modèle —</option>
+		{#if templates.length}
+			<optgroup label="Mes modèles">
+				{#each templates as t (t.id)}
+					<option value={String(t.id)}>{t.commonName}</option>
+				{/each}
+			</optgroup>
+		{/if}
+		{#if pendingCatalog.length}
+			<optgroup label="Catalogue">
+				{#each pendingCatalog as e (e.key)}
+					<option value="catalog:{e.key}">{e.commonName}</option>
+				{/each}
+			</optgroup>
+		{/if}
 	</select>
 </label>
+
+{#if entry?.altitudeWarning}
+	<p class="altitude">⚠️ {entry.altitudeWarning}</p>
+{/if}
 
 <label>
 	Nom commun
@@ -63,9 +121,23 @@
 	</label>
 	<label>
 		Variété
-		<input name="variety" value={v('variety')} placeholder="ex. Reinette" />
+		<input
+			name="variety"
+			bind:value={variety}
+			onchange={onVarietyChange}
+			list="variety-options"
+			placeholder="ex. Reinette"
+			autocomplete="off"
+		/>
 	</label>
 </div>
+
+{#if entry?.varieties.length}
+	<datalist id="variety-options">
+		{#each entry.varieties as x (x.name)}<option value={x.name}>{x.notes}</option>{/each}
+	</datalist>
+{/if}
+{#if varietyNote}<p class="muted hint">{varietyNote}</p>{/if}
 
 <label>
 	Nom perso
@@ -111,18 +183,29 @@
 <div class="grid2">
 	<label>
 		Porte-greffe
-		<input name="rootstock" value={v('rootstock')} placeholder="ex. MM106" />
+		<input
+			name="rootstock"
+			value={v('rootstock')}
+			list="rootstock-options"
+			placeholder="ex. MM106"
+			autocomplete="off"
+		/>
 	</label>
 	<label>
 		Distance conseillée (m)
 		<input
 			name="recommendedSpacingM"
 			inputmode="decimal"
-			value={v('recommendedSpacingM')}
+			bind:value={spacing}
 			placeholder="ex. 6"
 		/>
 	</label>
 </div>
+{#if entry?.rootstocks.length}
+	<datalist id="rootstock-options">
+		{#each entry.rootstocks as r (r)}<option value={r}></option>{/each}
+	</datalist>
+{/if}
 
 <label class="check">
 	<input type="checkbox" name="pollinatorRequired" bind:checked={pollinatorRequired} />
@@ -148,7 +231,7 @@
 
 <label>
 	Pollinisateurs compatibles (notes)
-	<textarea name="pollinationNotes" rows="2">{v('pollinationNotes')}</textarea>
+	<textarea name="pollinationNotes" rows="2" bind:value={pollinationNotes}></textarea>
 </label>
 
 <label>
@@ -162,6 +245,17 @@
 </label>
 
 <style>
+	.altitude {
+		margin: 0;
+		padding: 0.6rem 0.75rem;
+		border-radius: 8px;
+		border: 1px solid var(--warning);
+		font-size: 0.9rem;
+	}
+	.hint {
+		margin: -0.5rem 0 0;
+		font-size: 0.85rem;
+	}
 	fieldset {
 		border: 1px solid var(--border);
 		border-radius: 8px;

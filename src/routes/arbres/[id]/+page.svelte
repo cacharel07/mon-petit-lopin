@@ -153,6 +153,12 @@
 		{#if t.pollinationNotes}<dt>Compatibles</dt>
 			<dd class="notes">{t.pollinationNotes}</dd>{/if}
 	</dl>
+	{#if data.template?.notes}
+		<details class="species-notes">
+			<summary>Conseils pour l'espèce ({data.template.commonName})</summary>
+			<p class="notes">{data.template.notes}</p>
+		</details>
+	{/if}
 	{#if t.nurseryAdvice}
 		<h3>Conseils de la pépinière</h3>
 		<p class="notes">{t.nurseryAdvice}</p>
@@ -217,6 +223,16 @@
 	h3 {
 		font-size: 1rem;
 		margin: 1rem 0 0.25rem;
+	}
+	.species-notes {
+		margin-top: 1rem;
+	}
+	.species-notes summary {
+		cursor: pointer;
+		color: var(--primary);
+		min-height: 44px;
+		display: flex;
+		align-items: center;
 	}
 	.upload {
 		margin-top: 0.75rem;

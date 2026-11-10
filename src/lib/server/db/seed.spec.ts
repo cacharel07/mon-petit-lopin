@@ -4,7 +4,7 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { describe, expect, it } from 'vitest';
 import * as schema from './schema.ts';
-import { seed } from './seed.ts';
+import { isDatabaseEmpty, seed } from './seed.ts';
 
 function freshDb() {
 	const client = new Database(':memory:');
@@ -30,6 +30,14 @@ describe('seed', () => {
 
 		const projects = db.select().from(schema.project).all();
 		expect(projects.map((p) => p.status).sort()).toEqual(['done', 'in_progress', 'planned']);
+	});
+
+	it('detects an empty database, including one with only a species template', () => {
+		const db = freshDb();
+		expect(isDatabaseEmpty(db)).toBe(true);
+		db.insert(schema.speciesTemplate).values({ commonName: 'Prunier' }).run();
+		expect(isDatabaseEmpty(db)).toBe(false);
+		expect(() => seed(db)).toThrow(/déjà/);
 	});
 
 	it('refuses to run twice', () => {

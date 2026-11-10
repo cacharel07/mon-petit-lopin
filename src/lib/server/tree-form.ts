@@ -1,10 +1,27 @@
 import { TREE_STATUSES } from '../domain/enums.ts';
-import { bool, date, decimal, int, oneOf, requiredText, text } from './forms.ts';
+import { catalogEntry } from './catalog.ts';
+import { ensureTemplateFromCatalog } from './catalog-templates.ts';
+import { db } from './db/index.ts';
+import { FormError, bool, date, decimal, int, oneOf, requiredText, text } from './forms.ts';
+
+/**
+ * The species select holds either a template id or `catalog:<key>` for a
+ * catalogue entry not imported yet; the template is then created on save.
+ */
+function templateId(form: FormData): number | null {
+	const value = text(form, 'speciesTemplateId');
+	if (value?.startsWith('catalog:')) {
+		const key = value.slice('catalog:'.length);
+		if (!catalogEntry(key)) throw new FormError("Modèle d'espèce inconnu.");
+		return ensureTemplateFromCatalog(db, key);
+	}
+	return int(form, 'speciesTemplateId', "Modèle d'espèce");
+}
 
 export function parseTreeForm(form: FormData) {
 	return {
 		tree: {
-			speciesTemplateId: int(form, 'speciesTemplateId', "Modèle d'espèce"),
+			speciesTemplateId: templateId(form),
 			zoneId: int(form, 'zoneId', 'Zone'),
 			commonName: requiredText(form, 'commonName', 'Nom commun'),
 			species: text(form, 'species'),

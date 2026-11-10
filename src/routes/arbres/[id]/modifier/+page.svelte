@@ -21,6 +21,7 @@
 		values={form?.values ?? data.tree}
 		zones={data.zones}
 		templates={data.templates}
+		catalog={data.catalog}
 		otherTrees={data.otherTrees}
 		pollinatorIds={data.pollinatorIds}
 	/>
