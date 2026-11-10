@@ -43,7 +43,8 @@ src/routes/                pages (URLs en français) :
                            / (tableau de bord), /echeances/fait (POST du bouton « Fait »),
                            /export, /export/lopin.zip, /export/lopin.json, /export/csv/[table],
                            /zones, /plus, /photos/[name] (fichiers, authentifiés)
-scripts/                   hash-password.js, seed.ts, update.sh (mise à jour sur le serveur)
+scripts/                   hash-password.js, seed.ts, auto-update.sh (tâche planifiée),
+                           update.sh (mise à jour manuelle)
 .github/workflows/         release.yml : build GitHub → branche deploy
 deploy/gitignore           .gitignore de la branche deploy
 drizzle/                   migrations SQL générées
@@ -117,8 +118,9 @@ s'accompagner de tests.
 - Hébergement : alwaysdata (Node.js 24), sans Docker. Le SSH n'a pas assez de mémoire pour
   `npm ci` / `vite build` : GitHub Actions (`.github/workflows/release.yml`) publie à chaque push
   sur `main` une copie compilée avec les dépendances de production sur la branche `deploy`
-  (un seul commit, force-pushé). Le serveur suit `deploy` et se met à jour avec
-  `sh scripts/update.sh`. Tout ce qui est exécuté en production (y compris `scripts/seed.ts`)
+  (un seul commit, force-pushé). Le serveur suit `deploy` : une tâche planifiée alwaysdata lance
+  `scripts/auto-update.sh` (mise à jour si `deploy` a changé + redémarrage via l'API alwaysdata,
+  variables `ALWAYSDATA_*` dans `.env`) ; `scripts/update.sh` force la mise à jour à la main. Tout ce qui est exécuté en production (y compris `scripts/seed.ts`)
   doit donc n'utiliser que des `dependencies`, pas des `devDependencies`.
 
 ## Hors périmètre V1 (pistes V2)
