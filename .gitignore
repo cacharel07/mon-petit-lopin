@@ -1,0 +1,6 @@
+# .gitignore of the deploy branch: node_modules and build ARE committed here.
+.env
+/data
+/.update.lock
+# Temporary files of the NFS filesystem (scripts replaced while running)
+.nfs*

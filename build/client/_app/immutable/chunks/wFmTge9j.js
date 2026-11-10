@@ -1,0 +1,1 @@
+function e(e){return e==null?``:new Intl.NumberFormat(`fr-FR`,{style:`currency`,currency:`EUR`}).format(e/100)}function t(e){if(e==null)return``;let t=e/100;return Number.isInteger(t)?String(t):t.toFixed(2).replace(`.`,`,`)}export{e as n,t};

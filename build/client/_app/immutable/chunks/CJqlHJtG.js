@@ -1,0 +1,1 @@
+import{B as e,D as t,Q as n,R as r,T as i,p as a,s as o}from"./DwJq4gNz.js";var s=t(`<div class="bar svelte-1qjgclg" role="progressbar"><div class="fill svelte-1qjgclg"></div></div>`);function c(t,c){var l=s();o(l,`aria-valuemin`,0),o(l,`aria-valuemax`,100);var u=e(l);let d;n(l),r(()=>{o(l,`aria-valuenow`,c.value),d=a(u,``,d,{width:`${c.value??``}%`})}),i(t,l)}export{c as t};

@@ -1,0 +1,1 @@
+var e=new URL(`../assets/logo.Co2QlV-l.webp`,import.meta.url).href;export{e as t};
