@@ -5,7 +5,7 @@ import { drizzle } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { building } from '$app/env';
 import { DATABASE_URL } from '$app/env/private';
-import * as schema from './schema';
+import * as schema from './schema.ts';
 
 function open(path: string) {
 	if (path !== ':memory:') mkdirSync(dirname(resolve(path)), { recursive: true });

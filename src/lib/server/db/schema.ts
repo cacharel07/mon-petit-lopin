@@ -18,7 +18,7 @@ import {
 	PROJECT_STATUSES,
 	SPECIES_CATEGORIES,
 	TREE_STATUSES
-} from '../../domain/enums';
+} from '../../domain/enums.ts';
 
 /*
  * Conventions:

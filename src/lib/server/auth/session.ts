@@ -1,8 +1,8 @@
 import { createHash, randomBytes } from 'node:crypto';
 import type { Cookies } from '@sveltejs/kit';
 import { eq, lt } from 'drizzle-orm';
-import { db } from '../db';
-import { session } from '../db/schema';
+import { db } from '../db/index.ts';
+import { session } from '../db/schema.ts';
 
 export const SESSION_COOKIE = 'lopin_session';
 const DAY_MS = 24 * 60 * 60 * 1000;
