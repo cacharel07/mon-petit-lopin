@@ -29,13 +29,19 @@ src/hooks.server.ts        authentification (toutes les routes sauf /login)
 src/lib/domain/            logique métier PURE (pas d'I/O) — testée
 src/lib/components/        composants Svelte partagés (formulaires, photos, calendrier)
 src/lib/server/db/         schéma Drizzle, connexion, seed (seed-data.ts = valeurs d'entretien)
-src/lib/server/*.ts        services : trees.ts (requêtes), photos.ts (sharp), forms.ts (parsing)
+src/lib/server/*.ts        services : trees.ts, projects.ts (requêtes), schedule.ts (charge les
+                           données du moteur d'échéances), photos.ts (sharp), export.ts,
+                           forms.ts (parsing)
 src/lib/server/auth/       mot de passe (scrypt) et sessions
 src/routes/                pages (URLs en français) :
                            /arbres, /arbres/[id], /arbres/[id]/modifier,
                            /arbres/[id]/entretien(/[ruleId|nouvelle][?remplace=X]),
                            /arbres/[id]/journal/[interventionId],
                            /especes, /especes/[id], /especes/[id]/regles/[ruleId|nouvelle],
+                           /travaux(?vue=kanban|?statut=…), /travaux/nouveau,
+                           /travaux/[id], /travaux/[id]/modifier,
+                           / (tableau de bord), /echeances/fait (POST du bouton « Fait »),
+                           /export, /export/lopin.zip, /export/lopin.json, /export/csv/[table],
                            /zones, /plus, /photos/[name] (fichiers, authentifiés)
 scripts/                   hash-password.js, seed.ts
 drizzle/                   migrations SQL générées
@@ -76,6 +82,14 @@ data/                      base et photos (ignoré par git)
 - `photo` → exactement un parmi `tree`, `project`, `intervention`.
 - `care_rule.verified = false` : valeur suggérée, affichée « à vérifier ».
 
+## Moteur d'échéances
+
+`src/lib/domain/schedule.ts` (pur, testé dans `schedule.spec.ts`) ; règles détaillées dans le
+README. Une intervention accomplit une règle si elle y est liée (`care_rule_id`, créé par le
+bouton « Fait ») ou, sans lien, si elle a le même type d'intervention et est datée dans la
+période (`CARE_RULE_TO_INTERVENTION` dans `enums.ts`). Toute évolution de ces règles doit
+s'accompagner de tests.
+
 ## Décisions validées
 
 - Bouton « Fait » sur le tableau de bord → crée l'intervention dans le journal.
@@ -89,5 +103,18 @@ data/                      base et photos (ignoré par git)
   `max_age_years` exclu (« avant 3 ans » = années 0, 1 et 2).
 - Les valeurs d'entretien du seed sont des suggestions pour 850 m d'altitude (`verified=false`).
 - Le seed contient des dates approximatives (plantation 2023 au 15 mars, achat au 1er novembre 2026) en attendant les vraies valeurs.
+- « Fait » n'est proposé que si une intervention datée d'aujourd'hui compte : période ouverte
+  ou en retard, règle répétée, tâche de projet.
+- Tableau de bord : « Cette semaine » = périodes ouvertes + ce qui commence avant dimanche ;
+  « Ce mois-ci » = ce qui commence ensuite jusqu'à la fin du mois calendaire.
+- Changement de statut d'un projet : début réel / fin réelle remplis automatiquement s'ils sont
+  vides ; rouvrir un projet terminé efface la fin réelle.
+- Export : CSV avec séparateur `;` et BOM UTF-8 (tableur en français) ; noms de colonnes de la
+  base ; sessions exclues.
 - Authentification : un seul compte défini par variables d'environnement.
 - Hébergement visé : alwaysdata (Node.js), sans Docker.
+
+## Hors périmètre V1 (pistes V2)
+
+Plan interactif (colonnes `tree.plan_x/plan_y` déjà prévues), notifications par e-mail, météo
+locale (gel, sécheresse), budget global, potager et vivaces, frise photo, second compte.

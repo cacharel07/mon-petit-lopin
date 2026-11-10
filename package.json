@@ -44,6 +44,7 @@
 	"dependencies": {
 		"better-sqlite3": "^13.0.2",
 		"exif-reader": "^2.0.3",
+		"fflate": "^0.8.2",
 		"sharp": "^0.35.5"
 	}
 }

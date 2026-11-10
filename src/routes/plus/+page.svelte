@@ -5,6 +5,7 @@
 <ul class="list">
 	<li><a class="card menu" href="/zones">📍 Zones du terrain</a></li>
 	<li><a class="card menu" href="/especes">📖 Modèles d'espèces</a></li>
+	<li><a class="card menu" href="/export">📦 Exporter mes données</a></li>
 </ul>
 
 <form method="POST" action="/logout" class="logout">
