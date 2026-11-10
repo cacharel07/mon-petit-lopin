@@ -22,7 +22,8 @@
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
 		"hash-password": "node scripts/hash-password.js",
-		"start": "node --env-file-if-exists=.env build"
+		"start": "node --env-file-if-exists=.env build",
+		"db:seed": "node --env-file-if-exists=.env scripts/seed.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-node": "^6.0.0",
@@ -42,6 +43,8 @@
 	},
 	"dependencies": {
 		"better-sqlite3": "^13.0.2",
+		"exif-reader": "^2.0.3",
+		"fflate": "^0.8.2",
 		"sharp": "^0.35.5"
 	}
 }
